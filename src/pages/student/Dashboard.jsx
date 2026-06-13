@@ -54,29 +54,37 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      <nav className="bg-gray-900 px-6 py-4 flex justify-between items-center border-b border-gray-800">
-        <h1 className="text-xl font-bold text-indigo-400">🎓 LearnFlow</h1>
-<div className="flex items-center gap-3">
-  <button
-    onClick={() => navigate("/student/browse")}
-    className="bg-indigo-600 hover:bg-indigo-500 text-sm px-4 py-2 rounded-lg transition"
-  >
-    📚 Browse Courses
-  </button>
-  <button
-    onClick={() => navigate("/student/leaderboard")}
-    className="bg-yellow-600 hover:bg-yellow-500 text-sm px-4 py-2 rounded-lg transition"
-  >
-    🏆 Leaderboard
-  </button>
-  <span className="text-gray-400 text-sm">{currentUser?.email}</span>
-  <button
-    onClick={handleLogout}
-    className="bg-gray-800 hover:bg-gray-700 text-sm px-4 py-2 rounded-lg transition"
-  >
-    Logout
-  </button>
-</div>
+      <nav className="bg-gray-900 px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-gray-800">
+  <div className="flex justify-between items-center">
+    <h1 className="text-xl font-bold text-indigo-400">🎓 LearnFlow</h1>
+    <button
+      onClick={handleLogout}
+      className="sm:hidden bg-gray-800 hover:bg-gray-700 text-sm px-3 py-1.5 rounded-lg transition"
+    >
+      Logout
+    </button>
+  </div>
+  <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 sm:pb-0">
+    <button
+      onClick={() => navigate("/student/browse")}
+      className="bg-indigo-600 hover:bg-indigo-500 text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg transition whitespace-nowrap"
+    >
+      📚 Browse Courses
+    </button>
+    <button
+      onClick={() => navigate("/student/leaderboard")}
+      className="bg-yellow-600 hover:bg-yellow-500 text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-lg transition whitespace-nowrap"
+    >
+      🏆 Leaderboard
+    </button>
+    <span className="hidden sm:inline text-gray-400 text-sm whitespace-nowrap">{currentUser?.email}</span>
+    <button
+      onClick={handleLogout}
+      className="hidden sm:inline bg-gray-800 hover:bg-gray-700 text-sm px-4 py-2 rounded-lg transition whitespace-nowrap"
+    >
+      Logout
+    </button>
+  </div>
       </nav>
 
       <div className="max-w-6xl mx-auto px-6 py-10">
