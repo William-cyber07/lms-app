@@ -58,6 +58,12 @@ useEffect(() => {
         <h1 className="text-xl font-bold text-indigo-400">🎓 LearnFlow</h1>
 <div className="flex items-center gap-3">
   <button
+    onClick={() => navigate("/student/browse")}
+    className="bg-indigo-600 hover:bg-indigo-500 text-sm px-4 py-2 rounded-lg transition"
+  >
+    📚 Browse Courses
+  </button>
+  <button
     onClick={() => navigate("/student/leaderboard")}
     className="bg-yellow-600 hover:bg-yellow-500 text-sm px-4 py-2 rounded-lg transition"
   >
