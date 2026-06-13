@@ -2,23 +2,32 @@ import { useState } from "react";
 import { auth } from "../../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useNavigate, Link } from "react-router-dom";
+import { useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
+useEffect(() => {
+  if (currentUser) {
+    navigate("/dashboard");
+  }
+}, [currentUser]);
 
   async function handleLogin(e) {
-    e.preventDefault();
-    setError("");
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      navigate("/dashboard");
-    } catch (err) {
-      setError("Invalid email or password.");
-    }
+  e.preventDefault();
+  setError("");
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    // navigate("/dashboard"); ← remove this line
+  } catch (err) {
+    setError("Invalid email or password.");
   }
+}
 
   return (
     <div className="min-h-screen bg-gray-950 flex items-center justify-center px-4">
