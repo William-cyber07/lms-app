@@ -136,9 +136,9 @@ return () => {
 </nav>
       
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar */}
-        <div className="w-72 bg-gray-900 border-r border-gray-800 flex flex-col">
+<div className="flex flex-col lg:flex-row flex-1 overflow-auto lg:overflow-hidden">
+  {/* Sidebar */}
+  <div className="w-full lg:w-72 bg-gray-900 border-b lg:border-b-0 lg:border-r border-gray-800 flex flex-col">
           <div className="p-5 border-b border-gray-800">
             <h2 className="font-semibold text-white mb-1">{course?.title}</h2>
             <div className="flex items-center gap-2 mt-2">
@@ -199,7 +199,7 @@ return () => {
               ))}
             </div>
           )}
-          <div className="flex-1 overflow-y-auto p-3 space-y-1">
+          <div className="flex-1 lg:overflow-y-auto p-3 space-y-1">
             {lessons.map((lesson, index) => (
               <button
                 key={lesson.id}
@@ -220,15 +220,15 @@ return () => {
         </div>
 
         {/* Main content */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 lg:overflow-y-auto p-3 space-y-1">
           {activeLesson ? (
             <>
               <h3 className="text-2xl font-bold mb-4">{activeLesson.title}</h3>
 
               {activeLesson.videoUrl && getYouTubeId(activeLesson.videoUrl) && (
-                <div className="mb-6 rounded-xl overflow-hidden aspect-video">
-                  <iframe
-                    className="w-full h-full"
+                <div className="mb-6 rounded-xl overflow-hidden w-full" style={{ paddingTop: "56.25%", position: "relative" }}>
+               <iframe
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
                     src={`https://www.youtube.com/embed/${getYouTubeId(activeLesson.videoUrl)}`}
                     allowFullScreen
                   />
