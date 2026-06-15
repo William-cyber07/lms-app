@@ -10,7 +10,13 @@ export default function BrowseCourses() {
   const [courses, setCourses] = useState([]);
   const [enrolledIds, setEnrolledIds] = useState([]);
   const [loading, setLoading] = useState(null);
+  const [search, setSearch] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedLevel, setSelectedLevel] = useState("All");
   const navigate = useNavigate();
+
+  const categories = ["All", "Development", "Design", "Business", "Marketing", "Science", "Mathematics", "Language", "Other"];
+  const levels = ["All", "Beginner", "Intermediate", "Advanced"];
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "courses"), (snapshot) => {
@@ -26,7 +32,6 @@ export default function BrowseCourses() {
       setEnrolledIds(snapshot.docs.map((d) => d.data().courseId));
     }
     fetchEnrollments();
-
     return unsubscribe;
   }, []);
 
@@ -50,9 +55,20 @@ export default function BrowseCourses() {
     setLoading(null);
   }
 
+  const filteredCourses = courses.filter((course) => {
+    const matchesSearch =
+      course.title.toLowerCase().includes(search.toLowerCase()) ||
+      course.description.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "All" || course.category === selectedCategory;
+    const matchesLevel =
+      selectedLevel === "All" || course.level === selectedLevel;
+    return matchesSearch && matchesCategory && matchesLevel;
+  });
+
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      <nav className="bg-gray-900 px-6 py-4 flex justify-between items-center border-b border-gray-800">
+      <nav className="bg-gray-900 px-4 sm:px-6 py-4 flex justify-between items-center border-b border-gray-800">
         <h1 className="text-xl font-bold text-indigo-400">🎓 LearnFlow</h1>
         <button
           onClick={() => navigate("/student/dashboard")}
@@ -62,18 +78,58 @@ export default function BrowseCourses() {
         </button>
       </nav>
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
         <h2 className="text-3xl font-bold mb-1">Browse Courses</h2>
-        <p className="text-gray-400 mb-8">Find something new to learn today</p>
+        <p className="text-gray-400 mb-6">Find something new to learn today</p>
 
-        {courses.length === 0 ? (
+        {/* Search & Filters */}
+        <div className="bg-gray-900 rounded-2xl p-4 border border-gray-800 mb-8 flex flex-col sm:flex-row gap-3">
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="🔍 Search courses..."
+            className="flex-1 bg-gray-800 text-white rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+          />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="bg-gray-800 text-white rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+          >
+            {categories.map((c) => (
+              <option key={c}>{c}</option>
+            ))}
+          </select>
+          <select
+            value={selectedLevel}
+            onChange={(e) => setSelectedLevel(e.target.value)}
+            className="bg-gray-800 text-white rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+          >
+            {levels.map((l) => (
+              <option key={l}>{l}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Results count */}
+        <p className="text-gray-400 text-sm mb-4">
+          {filteredCourses.length} course{filteredCourses.length !== 1 ? "s" : ""} found
+        </p>
+
+        {filteredCourses.length === 0 ? (
           <div className="text-center py-20 text-gray-500">
-            <p className="text-4xl mb-3">📚</p>
-            <p>No courses available yet.</p>
+            <p className="text-4xl mb-3">🔍</p>
+            <p>No courses match your search.</p>
+            <button
+              onClick={() => { setSearch(""); setSelectedCategory("All"); setSelectedLevel("All"); }}
+              className="mt-4 text-indigo-400 hover:underline text-sm"
+            >
+              Clear filters
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {courses.map((course) => {
+            {filteredCourses.map((course) => {
               const enrolled = enrolledIds.includes(course.id);
               return (
                 <div

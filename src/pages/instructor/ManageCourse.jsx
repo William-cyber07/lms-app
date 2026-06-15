@@ -5,6 +5,7 @@ import {
   doc, getDoc, collection, addDoc, deleteDoc,
   serverTimestamp, onSnapshot, query, where
 } from "firebase/firestore";
+import { auth } from "../../firebase";
 
 export default function ManageCourse() {
   const { courseId } = useParams();
@@ -21,6 +22,8 @@ export default function ManageCourse() {
   const [materials, setMaterials] = useState([]);
   const [materialName, setMaterialName] = useState("");
   const [materialUrl, setMaterialUrl] = useState("");
+  const [announcements, setAnnouncements] = useState([]);
+  const [announcementText, setAnnouncementText] = useState("");
 
   useEffect(() => {
     async function fetchCourse() {
@@ -54,19 +57,30 @@ export default function ManageCourse() {
         completedLessons: enrollData[i].completedLessons || [],
       }));
       setStudents(studentList);
-    });
+    } );
 
     const materialsQ = query(collection(db, "materials"), where("courseId", "==", courseId));
     const unsubMaterials = onSnapshot(materialsQ, (snapshot) => {
       setMaterials(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
 
-    return () => {
-      unsubscribe();
-      unsubSessions();
-      unsubStudents();
-      unsubMaterials();
-    };
+    const announcementsQ = query(
+  collection(db, "announcements"),
+  where("courseId", "==", courseId)
+);
+const unsubAnnouncements = onSnapshot(announcementsQ, (snapshot) => {
+  const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+  data.sort((a, b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
+  setAnnouncements(data);
+});
+  return () => {
+  unsubscribe();
+  unsubSessions();
+  unsubStudents();
+  unsubMaterials();
+  unsubAnnouncements();
+};
+
   }, [courseId]);
 
   async function handleAddLesson(e) {
@@ -103,6 +117,22 @@ export default function ManageCourse() {
   async function handleDeleteMaterial(id) {
     await deleteDoc(doc(db, "materials", id));
   }
+
+  async function handleAddAnnouncement(e) {
+  e.preventDefault();
+  if (!announcementText.trim()) return;
+  await addDoc(collection(db, "announcements"), {
+    courseId,
+    text: announcementText,
+    instructorEmail: auth.currentUser.email,
+    createdAt: serverTimestamp(),
+  });
+  setAnnouncementText("");
+}
+
+async function handleDeleteAnnouncement(id) {
+  await deleteDoc(doc(db, "announcements", id));
+}
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -376,6 +406,56 @@ export default function ManageCourse() {
                 </div>
               )}
             </div>
+            {/* Announcements */}
+<div className="bg-gray-900 rounded-2xl p-6 border border-gray-800 mt-6">
+  <h3 className="text-lg font-semibold mb-4">📢 Announcements</h3>
+
+  <form onSubmit={handleAddAnnouncement} className="flex flex-col sm:flex-row gap-3 mb-6">
+    <input
+      type="text"
+      value={announcementText}
+      onChange={(e) => setAnnouncementText(e.target.value)}
+      placeholder="Write an announcement for your students..."
+      required
+      className="flex-1 bg-gray-800 text-white rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 text-sm"
+    />
+    <button
+      type="submit"
+      className="bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-5 py-2.5 rounded-lg transition whitespace-nowrap"
+    >
+      + Post
+    </button>
+  </form>
+
+  {announcements.length === 0 ? (
+    <div className="text-center py-10 text-gray-500">
+      <p className="text-3xl mb-2">📢</p>
+      <p>No announcements yet.</p>
+    </div>
+  ) : (
+    <div className="space-y-3">
+      {announcements.map((a) => (
+        <div
+          key={a.id}
+          className="bg-gray-800 rounded-xl px-5 py-4 border border-gray-700 flex justify-between items-start gap-3"
+        >
+          <div>
+            <p className="text-white text-sm">{a.text}</p>
+            <p className="text-gray-500 text-xs mt-1">
+              {a.createdAt?.toDate().toLocaleString()}
+            </p>
+          </div>
+          <button
+            onClick={() => handleDeleteAnnouncement(a.id)}
+            className="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1.5 rounded-lg transition shrink-0"
+          >
+            Delete
+          </button>
+        </div>
+      ))}
+    </div>
+  )}
+</div>
           </>
         )}
       </div>

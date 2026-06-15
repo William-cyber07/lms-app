@@ -22,6 +22,7 @@
     const [earnedBadge, setEarnedBadge] = useState(null);
     const [sessions, setSessions] = useState([]);
     const [materials, setMaterials] = useState([]);
+    const [announcements, setAnnouncements] = useState([]);
 
     useEffect(() => {
       async function fetchData() {
@@ -47,6 +48,17 @@
         const unsubMaterials = onSnapshot(materialsQ, (snapshot) => {
         setMaterials(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
       });
+
+      const announcementsQ = query(
+  collection(db, "announcements"),
+  where("courseId", "==", courseId)
+);
+const unsubAnnouncements = onSnapshot(announcementsQ, (snapshot) => {
+  const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+  data.sort((a, b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
+  setAnnouncements(data);
+});
+
       }
 
 
@@ -74,11 +86,11 @@
     });
 
     return () => {
-      unsubscribe();
-      unsubSessions();
-      unsubMaterials();
-    };
-    
+  unsubscribe();
+  unsubSessions();
+  unsubMaterials();
+  unsubAnnouncements();
+};
     }, [courseId]);
 
     async function markComplete(lessonId) {
@@ -215,7 +227,7 @@
                 ))}
               </div>
             )}
-<div className="flex-1 lg:overflow-y-auto p-3 space-y-1">
+            <div className="flex-1 lg:overflow-y-auto p-3 space-y-1">
               {lessons.map((lesson, index) => (
                 <button
                   key={lesson.id}
@@ -253,6 +265,24 @@
                 ))}
               </div>
             )}
+            {announcements.length > 0 && (
+  <div className="p-3 border-t border-gray-800">
+    <p className="text-xs text-gray-500 uppercase font-semibold mb-2 px-1">
+      📢 Announcements
+    </p>
+    {announcements.map((a) => (
+      <div
+        key={a.id}
+        className="bg-gray-800 rounded-lg px-3 py-2 mb-2"
+      >
+        <p className="text-white text-xs">{a.text}</p>
+        <p className="text-gray-500 text-xs mt-1">
+          {a.createdAt?.toDate().toLocaleString()}
+        </p>
+      </div>
+    ))}
+  </div>
+)}
           </div>
 
           {/* Main content */}
