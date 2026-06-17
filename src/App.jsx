@@ -16,10 +16,18 @@ import ScheduleSession from "./pages/instructor/ScheduleSession";
 import Analytics from "./pages/instructor/Analytics";
 import RateCourse from "./pages/student/RateCourse";
 import LessonDiscussion from "./pages/student/LessonDiscussion";
+import AdminDashboard from "./pages/admin/Dashboard";
 
 function PrivateRoute({ children }) {
   const { currentUser } = useAuth();
   return currentUser ? children : <Navigate to="/login" />;
+}
+
+function RoleRoute() {
+  const { userRole } = useAuth();
+  if (userRole === "instructor") return <Navigate to="/instructor/dashboard" />;
+  if (userRole === "admin") return <Navigate to="/admin/dashboard" />;
+  return <Navigate to="/student/dashboard" />;
 }
 
 function RoleRoute() {
@@ -51,7 +59,7 @@ export default function App() {
         <Route path="/instructor/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
         <Route path="/student/course/:courseId/rate" element={<PrivateRoute><RateCourse /></PrivateRoute>} />
         <Route path="/student/discussion/:lessonId" element={<PrivateRoute><LessonDiscussion /></PrivateRoute>} />
-
+        <Route path="/admin/dashboard" element={<PrivateRoute><AdminDashboard /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   );  
