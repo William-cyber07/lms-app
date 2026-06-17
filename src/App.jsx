@@ -30,13 +30,6 @@ function RoleRoute() {
   return <Navigate to="/student/dashboard" />;
 }
 
-function RoleRoute() {
-  const { userRole } = useAuth();
-  if (userRole === "instructor") return <Navigate to="/instructor/dashboard" />;
-  if (userRole === "admin") return <Navigate to="/admin/dashboard" />;
-  return <Navigate to="/student/dashboard" />;
-}
-
 export default function App() {
   return (
     <BrowserRouter>
