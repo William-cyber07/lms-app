@@ -14,6 +14,7 @@ import Leaderboard from "./pages/student/Leaderboard";
 import LiveSession from "./pages/LiveSession";
 import ScheduleSession from "./pages/instructor/ScheduleSession";
 import Analytics from "./pages/instructor/Analytics";
+import RateCourse from "./pages/student/RateCourse";
 
 function PrivateRoute({ children }) {
   const { currentUser } = useAuth();
@@ -47,6 +48,8 @@ export default function App() {
         <Route path="/instructor/course/:courseId/schedule" element={<PrivateRoute><ScheduleSession /></PrivateRoute>} />
         <Route path="/live/:roomName" element={<PrivateRoute><LiveSession /></PrivateRoute>} />
         <Route path="/instructor/analytics" element={<PrivateRoute><Analytics /></PrivateRoute>} />
+        <Route path="/student/course/:courseId/rate" element={<PrivateRoute><RateCourse /></PrivateRoute>} />
+
       </Routes>
     </BrowserRouter>
   );  

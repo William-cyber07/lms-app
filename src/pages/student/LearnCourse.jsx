@@ -150,6 +150,12 @@ useEffect(() => {
         onClick={() => navigate("/student/dashboard")}
         className="bg-gray-800 hover:bg-gray-700 text-sm px-4 py-2 rounded-lg transition"
       >
+        <button
+  onClick={() => navigate(`/student/course/${courseId}/rate`)}
+  className="bg-yellow-600 hover:bg-yellow-500 text-sm px-4 py-2 rounded-lg transition"
+>
+  ⭐ Rate Course
+</button>
         ← Dashboard
       </button>
     </div>

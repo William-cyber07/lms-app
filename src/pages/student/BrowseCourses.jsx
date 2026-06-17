@@ -14,6 +14,7 @@ export default function BrowseCourses() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedLevel, setSelectedLevel] = useState("All");
   const navigate = useNavigate();
+  const [ratings, setRatings] = useState({});
 
   const categories = ["All", "Development", "Design", "Business", "Marketing", "Science", "Mathematics", "Language", "Other"];
   const levels = ["All", "Beginner", "Intermediate", "Advanced"];
@@ -65,6 +66,34 @@ export default function BrowseCourses() {
       selectedLevel === "All" || course.level === selectedLevel;
     return matchesSearch && matchesCategory && matchesLevel;
   });
+
+  const [ratings, setRatings] = useState({});
+
+useEffect(() => {
+  const unsubRatings = onSnapshot(collection(db, "reviews"), (snapshot) => {
+    const ratingMap = {};
+    snapshot.docs.forEach((d) => {
+      const data = d.data();
+      if (!ratingMap[data.courseId]) ratingMap[data.courseId] = [];
+      ratingMap[data.courseId].push(data.rating);
+    });
+    setRatings(ratingMap);
+  });
+  return unsubRatings;
+}, []);
+
+useEffect(() => {
+  const unsubRatings = onSnapshot(collection(db, "reviews"), (snapshot) => {
+    const ratingMap = {};
+    snapshot.docs.forEach((d) => {
+      const data = d.data();
+      if (!ratingMap[data.courseId]) ratingMap[data.courseId] = [];
+      ratingMap[data.courseId].push(data.rating);
+    });
+    setRatings(ratingMap);
+  });
+  return unsubRatings;
+}, []);
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
@@ -147,9 +176,18 @@ export default function BrowseCourses() {
                     <p className="text-gray-400 text-sm line-clamp-2 mb-4">
                       {course.description}
                     </p>
-                    <p className="text-xs text-gray-500 mb-4">
-                      👨‍🏫 {course.instructorEmail}
-                    </p>
+                    <p className="text-xs text-gray-500 mb-1">
+  👨‍🏫 {course.instructorEmail}
+</p>
+{ratings[course.id]?.length > 0 && (
+  <div className="flex items-center gap-1 mb-4">
+    <span className="text-yellow-400 text-sm">★</span>
+    <span className="text-white text-sm font-semibold">
+      {(ratings[course.id].reduce((a, b) => a + b, 0) / ratings[course.id].length).toFixed(1)}
+    </span>
+    <span className="text-gray-500 text-xs">({ratings[course.id].length})</span>
+  </div>
+)}
                   </div>
                   <button
                     onClick={() =>
