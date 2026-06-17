@@ -139,25 +139,25 @@ useEffect(() => {
         {/* Navbar */}
       <nav className="bg-gray-900 px-6 py-4 flex justify-between items-center border-b border-gray-800">
     <h1 className="text-xl font-bold text-indigo-400">🎓 LearnFlow</h1>
-    <div className="flex gap-3">
-      <button
-        onClick={() => navigate(`/student/chatbot/${courseId}`)}
-        className="bg-purple-700 hover:bg-purple-600 text-sm px-4 py-2 rounded-lg transition"
-      >
-        🤖 AI Tutor
-      </button>
-      <button
-        onClick={() => navigate("/student/dashboard")}
-        className="bg-gray-800 hover:bg-gray-700 text-sm px-4 py-2 rounded-lg transition"
-      >
-        <button
-  onClick={() => navigate(`/student/course/${courseId}/rate`)}
-  className="bg-yellow-600 hover:bg-yellow-500 text-sm px-4 py-2 rounded-lg transition"
->
-  ⭐ Rate Course
-</button>
-        ← Dashboard
-      </button>
+    <div className="flex gap-2 flex-wrap">
+  <button
+    onClick={() => navigate(`/student/chatbot/${courseId}`)}
+    className="bg-purple-700 hover:bg-purple-600 text-sm px-3 py-2 rounded-lg transition"
+  >
+    🤖 AI Tutor
+  </button>
+  <button
+    onClick={() => navigate(`/student/course/${courseId}/rate`)}
+    className="bg-yellow-600 hover:bg-yellow-500 text-sm px-3 py-2 rounded-lg transition"
+  >
+    ⭐ Rate
+  </button>
+  <button
+    onClick={() => navigate("/student/dashboard")}
+    className="bg-gray-800 hover:bg-gray-700 text-sm px-3 py-2 rounded-lg transition"
+  >
+    ← Dashboard
+  </button>
     </div>
   </nav>
         
