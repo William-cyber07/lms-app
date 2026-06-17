@@ -311,6 +311,13 @@ useEffect(() => {
               🤖 Take AI Quiz
               </button>
 
+              <button
+              onClick={() => navigate(`/student/discussion/${activeLesson.id}`)}
+            className="mb-4 ml-2 bg-blue-700 hover:bg-blue-600 text-white px-6 py-2.5 rounded-lg transition font-semibold"
+>
+             💬 Discussion
+             </button>
+
                 {!completedLessons.includes(activeLesson.id) ? (
                   <button
                     onClick={() => markComplete(activeLesson.id)}
