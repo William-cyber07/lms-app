@@ -2,8 +2,8 @@
   import { useParams, useNavigate } from "react-router-dom";
   import { db, auth } from "../../firebase";
   import {
-    doc, getDoc, collection, query,
-    where, onSnapshot, updateDoc, arrayUnion, getDocs
+  doc, getDoc, collection, query,
+  where, onSnapshot, updateDoc, arrayUnion, getDocs, setDoc
   } from "firebase/firestore";
   import { awardXP, awardBadge, BADGES } from "../../utils/gamification";
   import { generateCertificate } from "../../utils/certificate";
@@ -24,6 +24,9 @@
     const [materials, setMaterials] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
     const [ratings, setRatings] = useState({});
+    const [note, setNote] = useState("");
+    const [savedNote, setSavedNote] = useState("");
+    const [savingNote, setSavingNote] = useState(false);
 
 useEffect(() => {
   let unsubMaterials = () => {};
@@ -95,6 +98,37 @@ useEffect(() => {
       completedLessons: arrayUnion(lessonId),
       progress,
     });
+
+    async function handleSaveNote() {
+  if (!activeLesson) return;
+  setSavingNote(true);
+  await setDoc(doc(db, "notes", `${auth.currentUser.uid}_${activeLesson.id}`), {
+    userId: auth.currentUser.uid,
+    lessonId: activeLesson.id,
+    courseId,
+    text: note,
+    updatedAt: serverTimestamp(),
+  });
+  setSavedNote(note);
+  setSavingNote(false);
+   }
+
+   useEffect(() => {
+  if (!activeLesson) return;
+  async function fetchNote() {
+    const noteSnap = await getDoc(
+      doc(db, "notes", `${auth.currentUser.uid}_${activeLesson.id}`)
+    );
+    if (noteSnap.exists()) {
+      setNote(noteSnap.data().text);
+      setSavedNote(noteSnap.data().text);
+    } else {
+      setNote("");
+      setSavedNote("");
+    }
+  }
+  fetchNote();
+}, [activeLesson?.id]);
 
     const newBadges = await awardXP(auth.currentUser.uid, 10);
 
@@ -330,6 +364,29 @@ useEffect(() => {
                     <span>✅ Lesson Completed</span>
                   </div>
                 )}
+                {/* Notes */}
+<div className="mt-6 bg-gray-900 rounded-xl p-5 border border-gray-800">
+  <h4 className="font-semibold text-white mb-3">📝 My Notes</h4>
+  <textarea
+    value={note}
+    onChange={(e) => setNote(e.target.value)}
+    rows={4}
+    className="w-full bg-gray-800 text-white rounded-lg px-4 py-2.5 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm mb-3"
+    placeholder="Write your notes for this lesson..."
+  />
+  <div className="flex items-center justify-between">
+    <button
+      onClick={handleSaveNote}
+      disabled={savingNote || note === savedNote}
+      className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white text-sm px-5 py-2 rounded-lg transition"
+    >
+      {savingNote ? "Saving..." : note === savedNote ? "✅ Saved" : "Save Note"}
+    </button>
+    {savedNote && note === savedNote && (
+      <span className="text-gray-500 text-xs">Last saved</span>
+    )}
+  </div>
+</div>
               </>
             ) : (
               <div className="text-center py-20 text-gray-500">
