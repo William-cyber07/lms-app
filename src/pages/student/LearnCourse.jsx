@@ -23,6 +23,7 @@
     const [sessions, setSessions] = useState([]);
     const [materials, setMaterials] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
+    const [ratings, setRatings] = useState({});
 
 useEffect(() => {
   let unsubMaterials = () => {};

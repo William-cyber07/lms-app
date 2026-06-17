@@ -67,7 +67,6 @@ export default function BrowseCourses() {
     return matchesSearch && matchesCategory && matchesLevel;
   });
 
-  const [ratings, setRatings] = useState({});
 
 useEffect(() => {
   const unsubRatings = onSnapshot(collection(db, "reviews"), (snapshot) => {
