@@ -24,74 +24,66 @@
     const [materials, setMaterials] = useState([]);
     const [announcements, setAnnouncements] = useState([]);
 
-    useEffect(() => {
-      async function fetchData() {
-        const courseSnap = await getDoc(doc(db, "courses", courseId));
-        if (courseSnap.exists()) setCourse({ id: courseSnap.id, ...courseSnap.data() });
+useEffect(() => {
+  let unsubMaterials = () => {};
+  let unsubAnnouncements = () => {};
 
-        const userSnap = await getDoc(doc(db, "users", auth.currentUser.uid));
-        if (userSnap.exists()) setUserName(userSnap.data().name);
+  async function fetchData() {
+    const courseSnap = await getDoc(doc(db, "courses", courseId));
+    if (courseSnap.exists()) setCourse({ id: courseSnap.id, ...courseSnap.data() });
 
-        const enrollQ = query(
-          collection(db, "enrollments"),
-          where("userId", "==", auth.currentUser.uid),
-          where("courseId", "==", courseId)
-        );
-        const enrollSnap = await getDocs(enrollQ);
-        if (!enrollSnap.empty) {
-          const enrollDoc = enrollSnap.docs[0];
-          setEnrollmentId(enrollDoc.id);
-          setCompletedLessons(enrollDoc.data().completedLessons || []);
-        }
+    const userSnap = await getDoc(doc(db, "users", auth.currentUser.uid));
+    if (userSnap.exists()) setUserName(userSnap.data().name);
 
-        const materialsQ = query(collection(db, "materials"), where("courseId", "==", courseId));
-        const unsubMaterials = onSnapshot(materialsQ, (snapshot) => {
-        setMaterials(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
-      });
+    const enrollQ = query(
+      collection(db, "enrollments"),
+      where("userId", "==", auth.currentUser.uid),
+      where("courseId", "==", courseId)
+    );
+    const enrollSnap = await getDocs(enrollQ);
+    if (!enrollSnap.empty) {
+      const enrollDoc = enrollSnap.docs[0];
+      setEnrollmentId(enrollDoc.id);
+      setCompletedLessons(enrollDoc.data().completedLessons || []);
+    }
+  }
+  fetchData();
 
-      const announcementsQ = query(
-  collection(db, "announcements"),
-  where("courseId", "==", courseId)
-);
-const unsubAnnouncements = onSnapshot(announcementsQ, (snapshot) => {
-  const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-  data.sort((a, b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
-  setAnnouncements(data);
-});
+  const q = query(collection(db, "lessons"), where("courseId", "==", courseId));
+  const unsubscribe = onSnapshot(q, (snapshot) => {
+    const data = snapshot.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => a.order - b.order);
+    setLessons(data);
+    if (data.length > 0) setActiveLesson(data[0]);
+  });
 
-      }
+  const sessionsQ = query(collection(db, "sessions"), where("courseId", "==", courseId));
+  const unsubSessions = onSnapshot(sessionsQ, (snapshot) => {
+    const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    data.sort((a, b) => a.scheduledAt?.toMillis() - b.scheduledAt?.toMillis());
+    setSessions(data);
+  });
 
+  const materialsQ = query(collection(db, "materials"), where("courseId", "==", courseId));
+  unsubMaterials = onSnapshot(materialsQ, (snapshot) => {
+    setMaterials(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
+  });
 
-     fetchData();
+  const announcementsQ = query(collection(db, "announcements"), where("courseId", "==", courseId));
+  unsubAnnouncements = onSnapshot(announcementsQ, (snapshot) => {
+    const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+    data.sort((a, b) => b.createdAt?.toMillis() - a.createdAt?.toMillis());
+    setAnnouncements(data);
+  });
 
-    const q = query(collection(db, "lessons"), where("courseId", "==", courseId));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs
-        .map((d) => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => a.order - b.order);
-      setLessons(data);
-      if (data.length > 0) setActiveLesson(data[0]);
-    });
-
-    const sessionsQ = query(collection(db, "sessions"), where("courseId", "==", courseId));
-    const unsubSessions = onSnapshot(sessionsQ, (snapshot) => {
-      const data = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
-      data.sort((a, b) => a.scheduledAt?.toMillis() - b.scheduledAt?.toMillis());
-      setSessions(data);
-    });
-
-    const materialsQ = query(collection(db, "materials"), where("courseId", "==", courseId));
-    const unsubMaterials = onSnapshot(materialsQ, (snapshot) => {
-      setMaterials(snapshot.docs.map((d) => ({ id: d.id, ...d.data() })));
-    });
-
-    return () => {
-  unsubscribe();
-  unsubSessions();
-  unsubMaterials();
-  unsubAnnouncements();
-};
-    }, [courseId]);
+  return () => {
+    unsubscribe();
+    unsubSessions();
+    unsubMaterials();
+    unsubAnnouncements();
+  };
+}, [courseId]);
 
     async function markComplete(lessonId) {
     if (!enrollmentId || completedLessons.includes(lessonId)) return;
